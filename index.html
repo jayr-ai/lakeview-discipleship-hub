@@ -50,6 +50,14 @@
   .md blockquote{margin:8px 0;padding:6px 14px;border-left:3px solid var(--coral);background:var(--coral-soft);border-radius:0 8px 8px 0;color:#5a3b30}
   .md hr{border:none;border-top:1px solid var(--line);margin:14px 0}
   .tw{overflow-x:auto}
+  .series-table table{table-layout:fixed}
+  .series-table td,.series-table th{overflow-wrap:break-word;word-break:break-word}
+  .series-table th:nth-child(1),.series-table td:nth-child(1){width:8%}
+  .series-table th:nth-child(2),.series-table td:nth-child(2){width:13%}
+  .series-table th:nth-child(3),.series-table td:nth-child(3){width:11%}
+  .series-table th:nth-child(4),.series-table td:nth-child(4){width:11%}
+  .series-table th:nth-child(5),.series-table td:nth-child(5){width:24%}
+  .series-table th:nth-child(6),.series-table td:nth-child(6){width:33%}
   .md table{border-collapse:collapse;width:100%;font-size:13.5px;margin:8px 0}
   .md th,.md td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
   .md th{background:#faf7f1;font-weight:600;color:var(--navy)}
@@ -187,16 +195,25 @@ function exportCard(cardEl, footerText, fileName, W, scale){
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml"><style>'+css+'</style>'+htmlStr+'</div></foreignObject></svg>';
   const img = new Image();
   img.onload = () => {
-    const c = document.createElement('canvas');
-    c.width = W * scale; c.height = H * scale;
-    const x = c.getContext('2d');
-    x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
-    x.drawImage(img, 0, 0, c.width, c.height);
-    const a = document.createElement('a');
-    a.download = fileName; a.href = c.toDataURL('image/png'); a.click();
+    try{
+      const c = document.createElement('canvas');
+      c.width = W * scale; c.height = H * scale;
+      const x = c.getContext('2d');
+      x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+      x.drawImage(img, 0, 0, c.width, c.height);
+      const trigger = (href, revoke) => {
+        const a = document.createElement('a');
+        a.download = fileName; a.href = href;
+        document.body.appendChild(a); a.click(); a.remove();
+        if(revoke) setTimeout(() => URL.revokeObjectURL(href), 5000);
+      };
+      if(c.toBlob){
+        c.toBlob(bl => { bl ? trigger(URL.createObjectURL(bl), true) : trigger(c.toDataURL('image/png')); }, 'image/png');
+      } else { trigger(c.toDataURL('image/png')); }
+    }catch(err){ alert('Could not save the PNG - your browser blocked the export (' + err.message + ').'); }
   };
-  img.onerror = () => alert('Could not export PNG. Try opening the hub in Chrome or Safari.');
-  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  img.onerror = () => alert('Could not render the PNG. Please open the hub in Chrome or Safari on a computer.');
+  img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
 }
 
 function render(){
@@ -215,7 +232,7 @@ function render(){
   if(M.seriesOverview){
     h += '<div class="card" data-label="Sermon Series" data-scope="month" data-exportw="1080" style="margin-top:16px">'
       + cardHead('📅', M.seriesOverview.title, true)
-      + '<div class="card-b"><div class="md">'+md(M.seriesOverview.md)+'</div></div></div>';
+      + '<div class="card-b"><div class="md series-table">'+md(M.seriesOverview.md)+'</div></div></div>';
   }
   if(M.youthConnect){
     h += '<div class="card collapsed" data-label="Youth Connect" data-scope="month" style="margin-top:12px">'
