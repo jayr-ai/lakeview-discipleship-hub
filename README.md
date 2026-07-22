@@ -58,6 +58,11 @@ Each generator skill produces markdown. To publish a week:
 Resource keys: `sermon`, `setlist`, `connectGroup`, `prayerTue`, `prayerThu`,
 `familyConnect` (weekly); `youthConnect`, `seriesTitle`, `seriesArc` (monthly).
 
+**`youthConnect.md` must always be the FULL program**, not a summary - theme package,
+program flow, the complete Group Dynamics game breakdown, THE WORD (with the Gospel
+Landing), the Altar Call, and songs. Paste the complete `youth-connect` skill output so
+everything a leader needs is in the card.
+
 To add a **new month**: create `data/<YYYY-MM>.json` and add an entry to
 `data/index.json`'s `months` array (`{ "key": "2026-10", "label": "October 2026" }`).
 
