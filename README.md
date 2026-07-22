@@ -71,8 +71,21 @@ python3 -m http.server 8747 --directory /Users/jayvee/Documents/ds-work/disciple
 
 then open http://localhost:8747/ .
 
-## Deploy to GitHub Pages
+## Live site
 
-Publish `discipleship-hub/` as its own repo (same pattern as the Lakeview site):
-`git init`, commit, push to GitHub, enable Pages on the default branch. The hub is
-static - no build step.
+Deployed at **https://jayr-ai.github.io/lakeview-discipleship-hub/**
+(repo `jayr-ai/lakeview-discipleship-hub`, GitHub Pages on `main` / root).
+
+To publish updates, just commit and push - Pages rebuilds automatically (~1 min):
+
+```
+git -C /Users/jayvee/Documents/ds-work/discipleship-hub add -A
+git -C /Users/jayvee/Documents/ds-work/discipleship-hub commit -m "Update <month>"
+git -C /Users/jayvee/Documents/ds-work/discipleship-hub push
+```
+
+## Save as PNG
+
+Every card (and the Youth Connect card) has a "Save PNG" button that exports just that
+card as a high-resolution PNG (3x, ~2040px wide) for sharing in Messenger/chat. It uses
+a self-contained SVG-to-canvas exporter - no external library.
