@@ -115,7 +115,7 @@ function md(src){
       rows.forEach((r, ri) => {
         const cells = r.split('|').slice(1,-1).map(c => c.trim());
         const tag = ri===0 ? 'th' : 'td';
-        html += '<tr>' + cells.map(c => '<'+tag+'>'+inline(c)+'</'+tag+'>').join('') + '</tr>';
+        html += '<tr>' + cells.map(c => '<'+tag+'>'+inline(c).replace(/&lt;br\s*\/?&gt;/gi,'<br>')+'</'+tag+'>').join('') + '</tr>';
       });
       html += '</table></div>'; continue;
     }
@@ -163,8 +163,8 @@ function card(res, content){
 
 function sanitize(s){ return s.replace(/[^a-z0-9]+/gi,'-').replace(/^-+|-+$/g,''); }
 
-function exportCard(cardEl, footerText, fileName){
-  const scale = 3, W = 680;
+function exportCard(cardEl, footerText, fileName, W, scale){
+  W = W || 680; scale = scale || 3;
   const css = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
   const clone = cardEl.cloneNode(true);
   clone.classList.remove('collapsed');
@@ -212,8 +212,13 @@ function render(){
   } else {
     h += '<h1 class="series">No series yet</h1><p class="series-arc">Give the monthly theme and generate the month to populate this.</p>';
   }
+  if(M.seriesOverview){
+    h += '<div class="card" data-label="Sermon Series" data-scope="month" data-exportw="1080" style="margin-top:16px">'
+      + cardHead('📅', M.seriesOverview.title, true)
+      + '<div class="card-b"><div class="md">'+md(M.seriesOverview.md)+'</div></div></div>';
+  }
   if(M.youthConnect){
-    h += '<div class="card collapsed" data-label="Youth Connect" data-scope="month" style="margin-top:16px">'
+    h += '<div class="card collapsed" data-label="Youth Connect" data-scope="month" style="margin-top:12px">'
       + cardHead('🔥', M.youthConnect.title, true)
       + '<div class="card-b"><div class="md">'+md(M.youthConnect.md)+'</div></div></div>';
   }
@@ -229,10 +234,11 @@ function render(){
     const cd = btn.closest('.card');
     const title = cd.dataset.label;
     const isMonth = cd.dataset.scope === 'month';
-    const ctx = isMonth ? 'Youth Connect' : ('Week ' + state.week);
-    const footer = 'Lakeview UMC   ·   ' + M.label + '   ·   ' + ctx;
-    const fname = sanitize(title + ' ' + M.label + ' ' + ctx) + '.png';
-    exportCard(cd, footer, fname);
+    const ctx = isMonth ? '' : ('Week ' + state.week);
+    const footer = 'Lakeview UMC   ·   ' + M.label + (ctx ? '   ·   ' + ctx : '');
+    const fname = sanitize(title + ' ' + M.label + (ctx ? ' ' + ctx : '')) + '.png';
+    const ew = parseInt(cd.dataset.exportw) || 680;
+    exportCard(cd, footer, fname, ew, 3);
   });
 }
 
