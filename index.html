@@ -190,7 +190,7 @@ function exportCard(cardEl, footerText, fileName, W, scale){
   meas.appendChild(inner);
   document.body.appendChild(meas);
   const H = Math.ceil(inner.getBoundingClientRect().height);
-  const htmlStr = inner.outerHTML;
+  const htmlStr = new XMLSerializer().serializeToString(inner);
   document.body.removeChild(meas);
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml"><style>'+css+'</style>'+htmlStr+'</div></foreignObject></svg>';
   const img = new Image();
