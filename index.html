@@ -309,6 +309,23 @@ async function loadMonth(key){
   render();
 }
 
+function currentMonthKey(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+
+function pickDefaultMonth(list){
+  if(!list.length) return null;
+  const keys = list.map(m => m.key).sort();
+  const today = currentMonthKey();
+  if(keys.includes(today)) return today;
+  // no exact match (e.g. content not built yet for this month) -
+  // use the latest month at or before today, else the earliest month available.
+  let best = null;
+  for(const k of keys){ if(k <= today) best = k; }
+  return best || keys[0];
+}
+
 async function boot(){
   try{
     const r = await fetch('data/index.json', {cache:'no-store'});
@@ -318,7 +335,8 @@ async function boot(){
     document.getElementById('main').innerHTML = '<div class="msg">Could not load the month index. Serve this over a web server or GitHub Pages - opening the HTML directly from disk blocks data loading.</div>';
     return;
   }
-  if(monthsList.length) loadMonth(monthsList[0].key);
+  const start = pickDefaultMonth(monthsList);
+  if(start) loadMonth(start);
 }
 boot();
 </script>
